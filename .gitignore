@@ -1,0 +1,22 @@
+# Generated media — large binaries, kept out of git.
+# The meta.json sidecars and folder structure stay tracked (see outputs/README.md).
+outputs/**/*.png
+outputs/**/*.jpg
+outputs/**/*.jpeg
+outputs/**/*.webp
+outputs/**/*.gif
+outputs/**/*.mp4
+outputs/**/*.mov
+outputs/**/*.webm
+outputs/**/*.mp3
+outputs/**/*.wav
+
+# Ignore machine-local tool state (settings, permissions), but keep the
+# committed skills-discovery wiring so a clone gets both agents set up.
+.claude/*
+!.claude/skills
+.codex/*
+!.codex/skills
+
+# OS / editor cruft
+.DS_Store
