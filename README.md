@@ -21,23 +21,78 @@ Each generation skill's job is the same shape: figure out what's missing (format
 
 ### 1. fal.ai
 
-Get an API key at [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys), then connect fal's official MCP server:
+Get an API key at [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys). Like OpenRouter (below), this repo is pre-wired for **API-key auth from a local `.env` file** — it keeps the secret out of git and needs no per-machine `claude mcp add`.
+
+The generation skills need fal's **model-inference** MCP server — `https://mcp.fal.ai/mcp` — which searches models, reads their schemas, and actually runs image/video inference. (Note the auth scheme: this server uses `Authorization: Bearer ${FAL_KEY}`.) This is a **different server** from fal's read-only *Platform* API at `https://api.fal.ai/v1/mcp/platform`, which only exposes account/usage/monitoring tools and **cannot generate anything** — don't wire that one expecting generation. This repo commits both: the generation server as `fal`, plus the platform server as `fal-platform` for optional spend/usage debugging.
+```json
+{
+  "mcpServers": {
+    "fal": {
+      "type": "http",
+      "url": "https://mcp.fal.ai/mcp",
+      "headers": { "Authorization": "Bearer ${FAL_KEY}" }
+    },
+    "fal-platform": {
+      "type": "http",
+      "url": "https://api.fal.ai/v1/mcp/platform",
+      "headers": { "Authorization": "Key ${FAL_KEY}" }
+    }
+  }
+}
+```
+
+So the only per-machine setup is dropping your key into `.env` (see the shared `set -a; source .env; set +a` step under OpenRouter below — it exports both keys at once). On first launch, run `/mcp` to approve the project-scoped servers. The `fal` (generation) server is the one the skills require; `fal-platform` is optional.
+
+Prefer a one-off command instead of the committed config? Register the generation server directly with **Claude Code** (this stores it in your local config, not the shared `.mcp.json`):
 ```bash
-claude mcp add --transport http fal-ai \
+claude mcp add --transport http fal \
   https://mcp.fal.ai/mcp \
   --header "Authorization: Bearer YOUR_FAL_KEY"
 ```
 
-The commands above register the MCP server with **Claude Code**. For **Codex**, add the same servers with its own CLI — Codex supports Streamable HTTP MCP servers:
+For **Codex**, register the same server with its own CLI. The generation server uses the `Bearer` auth scheme:
 ```bash
-export FAL_KEY=YOUR_FAL_KEY
-codex mcp add fal-ai --url https://mcp.fal.ai/mcp --bearer-token-env-var FAL_KEY
+codex mcp add fal --url https://mcp.fal.ai/mcp \
+  --bearer-token-env-var FAL_KEY
 ```
-Flag names for auth headers evolve — check `codex mcp add --help` and the [Codex MCP docs](https://developers.openai.com/codex/mcp) for the current syntax (bearer-token env var vs. raw `http_headers`). Codex stores this in `~/.codex/config.toml` (global) or `.codex/config.toml` (project, trusted only).
+Flag names for auth headers evolve — check `codex mcp add --help` and the [Codex MCP docs](https://developers.openai.com/codex/mcp) for the current syntax (raw `http_headers` vs. bearer-token env var). Codex stores this in `~/.codex/config.toml` (global) or `.codex/config.toml` (project, trusted only). The platform server, if you want it, uses the `Key` scheme instead: `--http-header "Authorization: Key YOUR_FAL_KEY"`.
 
 ### 2. OpenRouter
 
-Get an API key at [openrouter.ai/keys](https://openrouter.ai/keys), then connect OpenRouter's official MCP server the same way (Claude Code: `claude mcp add`; Codex: `codex mcp add`). OpenRouter's MCP server supports OAuth discovery by default; if that flow doesn't work well in your setup, use a dedicated key instead — check OpenRouter's MCP docs (openrouter.ai/docs/mcp-server) for the current recommended connection command, since this detail changes between their OAuth and dedicated-key paths.
+Get an API key at [openrouter.ai/keys](https://openrouter.ai/keys). OpenRouter's MCP server supports OAuth discovery, but this repo is pre-wired for **API-key auth from a local `.env` file** instead — more convenient for local dev, and it keeps the secret out of git.
+
+This repo commits `.mcp.json` with the OpenRouter server already registered for Claude Code, reading the key from an environment variable:
+```json
+{
+  "mcpServers": {
+    "openrouter": {
+      "type": "http",
+      "url": "https://mcp.openrouter.ai/mcp",
+      "headers": { "Authorization": "Bearer ${OPEN_ROUTER_AUTH_TOKEN}" }
+    }
+  }
+}
+```
+
+So the only per-machine setup is dropping your key into a gitignored `.env` (copy `.env.example` → `.env`):
+```bash
+cp .env.example .env
+# then edit .env and set OPEN_ROUTER_AUTH_TOKEN=sk-or-...
+```
+
+**Important:** Claude Code does *not* auto-load `.env`. The `${OPEN_ROUTER_AUTH_TOKEN}` reference is expanded from your shell environment when `claude` launches, so export the file's contents before starting the agent:
+```bash
+set -a; source .env; set +a   # export every var in .env into the shell
+claude                        # launch from the repo root
+```
+`set -a` makes `source` export each variable so Claude Code (and through it the MCP client) can see it. On first launch, run `/mcp` to approve the project-scoped `openrouter` server; after that it connects via the `Bearer` header with no OAuth flow. To make this automatic, put the `set -a; source .env; set +a` line in a `direnv` `.envrc` for this directory.
+
+For **Codex**, register the same server with its own CLI (Codex supports Streamable HTTP MCP servers and reading the token from an env var):
+```bash
+export OPEN_ROUTER_AUTH_TOKEN=sk-or-...
+codex mcp add openrouter --url https://mcp.openrouter.ai/mcp --bearer-token-env-var OPEN_ROUTER_AUTH_TOKEN
+```
+Flag names for auth headers evolve — check `codex mcp add --help` and the [Codex MCP docs](https://developers.openai.com/codex/mcp) for current syntax. If you'd rather use OpenRouter's OAuth path instead of a key, see their MCP docs (openrouter.ai/docs/mcp-server).
 
 ### 3. Install the skills — nothing to copy
 

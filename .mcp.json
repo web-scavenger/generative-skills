@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "fal": {
+      "type": "http",
+      "url": "https://mcp.fal.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${FAL_KEY}"
+      }
+    },
+    "fal-platform": {
+      "type": "http",
+      "url": "https://api.fal.ai/v1/mcp/platform",
+      "headers": {
+        "Authorization": "Key ${FAL_KEY}"
+      }
+    },
+    "openrouter": {
+      "type": "http",
+      "url": "https://mcp.openrouter.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${OPEN_ROUTER_AUTH_TOKEN}"
+      }
+    }
+  }
+}
