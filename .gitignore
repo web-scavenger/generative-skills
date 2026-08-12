@@ -20,3 +20,4 @@ outputs/**/*.wav
 
 # OS / editor cruft
 .DS_Store
+.env
