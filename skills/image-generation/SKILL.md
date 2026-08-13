@@ -9,7 +9,7 @@ Generates images via the connected generation provider MCP server, using a curat
 
 **Prerequisite:** both fal.ai MCP and OpenRouter MCP should be connected — see the top-level README for setup commands for each. If only one is connected, proceed with that one but tell the user you're only seeing prices from one platform and the other might be cheaper. If neither is available, tell the user to connect at least one before continuing — don't attempt a workaround.
 
-**Shared catalog:** read `reference/model-catalog.md` → "Text-to-Image" section for the current model shortlist, and follow the "Live price-check procedure" section for how to validate pricing across both platforms before quoting anything. (Paths in this skill are relative to the repo root, which is your working directory.)
+**Shared catalog:** read `reference/model-catalog.md` → "Text-to-Image" section for the current model shortlist. Before quoting, follow the "Price cache procedure" (reuse a fresh <24h cached price from `price-cache.json`) and fall back to the "Live price-check procedure" on a miss/stale entry. (Paths in this skill are relative to the repo root, which is your working directory.)
 
 ## Workflow
 
@@ -18,7 +18,7 @@ Generates images via the connected generation provider MCP server, using a curat
    - Whether this needs to match a reference image (character/product consistency) — if they've attached or mentioned a reference image, this is implied, confirm rather than ask from scratch
    - Rough intent: quick draft to iterate on, or a final asset — this drives which tier to lead with
 
-2. **Check the catalog, then validate live on both platforms.** Pull the Text-to-Image shortlist from the reference doc, then run the "Live price-check procedure" — query fal and OpenRouter for each candidate model at the resolution actually requested, and use whichever number is genuinely cheaper for that specific case. The catalog's prices are approximate starting points, not what you quote.
+2. **Check the cache, then validate live if needed.** Pull the Text-to-Image shortlist from the reference doc, then run the "Price cache procedure": look each candidate up in `price-cache.json`. Use a fresh (<24h) cached price directly — and tell the user it's "as of `<time>`" with a "want me to re-check live?" offer. On a miss/stale entry (or if the user asks for fresh prices), run the "Live price-check procedure" across fal and OpenRouter and update the cache. Use whichever number is genuinely cheaper for that specific case; the catalog's prices are approximate starting points, not what you quote.
 
 3. **Present 2-3 priced options, not one, and note the platform.** E.g.:
    > - **Flux Schnell** (fal) — ~$0.003/image — fast draft quality, good for iterating on composition first

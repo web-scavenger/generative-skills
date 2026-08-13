@@ -9,7 +9,7 @@ Animates a reference image via the connected generation provider MCP server. Thi
 
 **Prerequisite:** both fal.ai MCP and OpenRouter MCP should be connected — see the top-level README. Same platform-spread caveats apply here as text-to-video (Seedance especially). If only one is available, proceed but flag that the other might be cheaper for the same model.
 
-**Shared catalog:** read `reference/model-catalog.md` → "Image-to-Video" section for the current model shortlist, and follow the "Live price-check procedure" section before quoting anything. (Paths in this skill are relative to the repo root, which is your working directory.)
+**Shared catalog:** read `reference/model-catalog.md` → "Image-to-Video" section for the current model shortlist. Follow the "Price cache procedure" (reuse fresh <24h prices from `price-cache.json`) then the "Live price-check procedure" on a miss, before quoting anything. **Note:** Seedance and any high-cost job (≳ $1.00) are *always* re-verified live, never served from cache. (Paths in this skill are relative to the repo root, which is your working directory.)
 
 ## Workflow
 
@@ -20,7 +20,7 @@ Animates a reference image via the connected generation provider MCP server. Thi
    - What kind of motion (subtle/ambient vs dynamic camera/action) — affects prompt phrasing, not just model choice
    - Aspect ratio, if it should differ from the source image's own ratio
 
-3. **Check the catalog, then validate live on both platforms** for the exact resolution/duration needed — run the "Live price-check procedure" from the reference doc.
+3. **Check the cache, then validate live if needed** for the exact resolution/duration needed. Run the "Price cache procedure": reuse a fresh (<24h) cached price for stable models (Wan/Kling), noting it's "as of `<time>`" with a re-check offer. For **Seedance** or any **high-cost job**, skip the cache and run the "Live price-check procedure" from the reference doc, then update the cache with what you fetch.
 
 4. **Present 2-3 priced options with platform noted**, with likeness/consistency quality called out explicitly since that's the whole point of this workflow:
    > For an 8s animation of your product image at 1080p:

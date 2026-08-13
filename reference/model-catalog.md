@@ -15,6 +15,8 @@ This catalog now tracks models across **both fal.ai and OpenRouter**, because th
 
 ⚠️ **Prices below are approximate and drift constantly.** Before presenting options to the user, query **both** MCP servers live (fal's schema/search tool, OpenRouter's model-listing/pricing tool) for the specific resolution + duration + audio setting requested, and use those numbers — never the table below — for what you actually quote. The table is a starting shortlist of *which models to check*, not a price list to read from.
 
+💡 **To avoid re-querying the same prices on every request, live results are cached** in `price-cache.json` (repo root) for 24h — see the "Price cache procedure" below. The cache only ever stores *live query results*; this shortlist table itself is a small local doc, so keep reading it normally.
+
 ---
 
 ## Text-to-Image
@@ -64,6 +66,64 @@ This catalog now tracks models across **both fal.ai and OpenRouter**, because th
 3. Normalize both to the same unit (per-image, or per-second × duration) before comparing — never compare a "starting from" number on one platform against a specific-tier number on the other.
 4. Present the cheaper option to the user as part of the options list, but don't hide the other platform's number — showing "fal: $X vs OpenRouter: $Y for the same model" is useful information, not noise.
 5. If a model is only available on one platform, note that rather than presenting a false comparison.
+
+## Price cache procedure (all skills follow this to avoid redundant lookups)
+
+The live price-check above is the expensive step — it hits **both** fal and OpenRouter for every
+candidate model, on every request. Prices don't move intraday, so cache the results and reuse them
+for a day. The cache lives in `price-cache.json` at the repo root (git-ignored, machine-local).
+
+**Cache shape** — a flat list of entries, one per model/platform/tier combination:
+
+```json
+{
+  "version": 1,
+  "entries": [
+    {
+      "key": "seedance-2.5|fal|1080p|per_second|audio=true",
+      "model": "Seedance 2.5",
+      "platform": "fal",
+      "resolution": "1080p",
+      "unit": "per_second",
+      "audio": true,
+      "price": 0.68,
+      "fetched_at": "2026-08-13T14:02:00Z"
+    }
+  ]
+}
+```
+
+The `key` is `model|platform|resolution|duration-or-unit|audio` — an entry is only a hit when **all**
+those cost-determining fields match the current request (this is what keeps the resolution/audio
+traps above from producing a false cache hit).
+
+**Before running the live price-check, consult the cache:**
+
+1. Build the `key` for each candidate model + platform at the exact tier requested.
+2. Look each `key` up in `price-cache.json`:
+   - **Fresh hit** (`fetched_at` less than **24h** old) → use that price. Tell the user it's the
+     price **"as of `<fetched_at>`"** — never present a cached number as if you just fetched it.
+   - **Miss or stale** (≥ 24h, or no entry) → run the live price-check for that candidate, then
+     **upsert** the result into the cache with a fresh `fetched_at` (replace any existing entry for
+     the same `key`; never rewrite the whole file blindly).
+
+**Always re-verify live and ignore the cache when:**
+
+- the model is **Seedance** (any variant, any task) — its 2x+ cross-platform spread makes a stale
+  quote genuinely expensive, so it's never served from cache; or
+- the estimated **job total is high** (≳ $1.00) — re-check before asking the user to commit money; or
+- the user explicitly asks to re-check / "check live prices."
+
+In all three cases, still upsert the fresh number into the cache afterward so later cheap requests
+benefit.
+
+**Free refresh on generate:** the finalize step already does a fresh live check right before running
+a generation — write that number into the cache too (see `output-conventions.md`), so real
+generations keep the cache warm at no extra cost.
+
+**Transparency:** whenever a quoted price came from cache, say so briefly and offer *"want me to
+re-check live?"* — the whole point is cost-awareness, so the user should always be able to force a
+fresh comparison.
 
 ## Maintaining this catalog
 

@@ -18,6 +18,10 @@ outputs/**/*.wav
 .codex/*
 !.codex/skills
 
+# Local price cache — regenerable live-query results, time/machine-specific.
+# Stale prices in git would be worse than no cache, so keep it out.
+price-cache.json
+
 # OS / editor cruft
 .DS_Store
 .env

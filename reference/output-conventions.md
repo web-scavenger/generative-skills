@@ -91,6 +91,7 @@ Handy queries once it has data:
 2. **Save the media** into it with the `<type>_NN.<ext>` naming above.
 3. **Write / update `meta.json`** — add an entry to `outputs` for each file produced, including the `price_check` from the live comparison you already did before generating.
 4. **Append to `generations.jsonl`** — one line per output file.
-5. **Report to the user** with the local path(s) and the actual cost. If more than one file, give the folder path.
+5. **Refresh the price cache** — upsert the price(s) you just used into `price-cache.json` with a fresh `fetched_at` (see the "Price cache procedure" in `model-catalog.md`). A generation always did a fresh live check right before running, so this keeps the cache warm for the next request at no extra cost.
+6. **Report to the user** with the local path(s) and the actual cost. If more than one file, give the folder path.
 
-Steps 1–4 are cheap bookkeeping; don't skip them, because the ledger is only useful if it's complete. If a generation *fails* or the user cancels, write nothing — the ledger records spend, not attempts.
+Steps 1–5 are cheap bookkeeping; don't skip them, because the ledger is only useful if it's complete. If a generation *fails* or the user cancels, write nothing — the ledger records spend, not attempts.
