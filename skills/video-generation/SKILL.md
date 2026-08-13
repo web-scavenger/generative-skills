@@ -9,7 +9,7 @@ Generates video via the connected generation provider MCP server, using a curate
 
 **Prerequisite:** both fal.ai MCP and OpenRouter MCP should be connected — see the top-level README. Video pricing has shown the biggest cross-platform spread of anything in this catalog (Seedance especially), so having both connected matters more here than for images. If only one is available, proceed but flag that the other platform might be significantly cheaper for the same model.
 
-**Shared catalog:** read `reference/model-catalog.md` → "Text-to-Video" section for the current model shortlist, and follow the "Live price-check procedure" section — this is the step that catches the resolution-tier and platform-spread traps documented there. (Paths in this skill are relative to the repo root, which is your working directory.)
+**Shared catalog:** read `reference/model-catalog.md` → "Text-to-Video" section for the current model shortlist. Follow the "Price cache procedure" (reuse fresh <24h prices from `price-cache.json`) then the "Live price-check procedure" on a miss — the latter is what catches the resolution-tier and platform-spread traps. **Note:** Seedance and any high-cost job (≳ $1.00) are *always* re-verified live, never served from cache. (Paths in this skill are relative to the repo root, which is your working directory.)
 
 ## Workflow
 
@@ -19,7 +19,7 @@ Generates video via the connected generation provider MCP server, using a curate
    - Whether native audio is needed (some models charge more for audio-inclusive generation — check the catalog note)
    - Quick draft vs final/client-facing asset — drives which tier to lead with
 
-2. **Check the catalog, then validate live on both platforms, at the exact resolution requested.** Run the "Live price-check procedure": query fal and OpenRouter for each candidate model, matched on resolution and audio setting — not just the headline "starting from" number. This is the step where Wan/Seedance in particular can show a 2x+ gap between platforms depending on which resolution tier you actually need.
+2. **Check the cache, then validate live at the exact resolution requested.** Run the "Price cache procedure": reuse a fresh (<24h) price from `price-cache.json` for stable models like Wan/Kling, telling the user it's "as of `<time>`" with a re-check offer. For **Seedance** and any **high-cost job**, skip the cache and run the "Live price-check procedure" — query fal and OpenRouter matched on resolution and audio setting, not the headline "starting from" number. This is where Wan/Seedance in particular can show a 2x+ gap between platforms depending on which resolution tier you actually need. Update the cache with whatever you fetch live.
 
 3. **Present 2-3 priced options with the total for THIS request, and note the platform + resolution the price is based on:**
    > For a 15s vertical clip at 1080p:
