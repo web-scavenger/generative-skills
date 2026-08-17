@@ -6,14 +6,29 @@ Agent Skills that turn **Claude Code or Codex CLI** into a cost-aware media gene
 
 ## What this is
 
+**Generation (back-end)** — turn a prompt or image into media:
+
 - `skills/image-generation` — text-to-image, with reference-image support for consistent characters/products
 - `skills/video-generation` — text-to-video
 - `skills/image-to-video` — animate an existing image while preserving its look
 - `skills/workflow-spotter` — a meta-skill: notices multi-step sequences you repeat and offers to save them as a reusable workflow or new skill (you don't have to author workflows yourself)
-- `reference/model-catalog.md` — shared curated model shortlist (price/quality notes) all three generation skills read from, including the live cross-platform price-check procedure
-- `reference/output-conventions.md` — shared rules for **where generated media goes** and **how every generation is recorded** (dated folders + `meta.json` sidecar + append-only ledger)
 
-Each generation skill's job is the same shape: figure out what's missing (format, duration, budget priority), check **both** fal and OpenRouter for real current pricing on the specific request, show 2-3 priced options with the platform noted, confirm cost, call whichever provider's generation tools match the chosen option, then save the result into a dated folder and log the cost. The skills never reimplement generation logic — the providers' own MCP servers do that part.
+**Creative front-end** — plan a short explainer video *before* you generate anything. Each is scoped to a **channel** (a language + a learned voice — e.g. run an English and a Ukrainian channel in parallel):
+
+- `skills/topic-research` — research a topic (delegating to the global `deep-research` skill) and distill it into a short-video brief: angles, surprising facts, candidate hooks
+- `skills/script-writing` — turn a brief or topic into a hook-first scenario written in the channel's language, using an encoded short-video craft guide and the channel's style
+- `skills/style-learning` — learn a channel's voice from example scripts/videos you provide and write its reusable style profile
+- `skills/storyboard` — break a script into timed shots, decide per beat whether to reuse one of your reference images or generate a new one, and hand off to the generation skills above (it never generates or price-checks itself)
+
+**Shared reference docs** (the single-source-of-truth files skills read from):
+
+- `reference/model-catalog.md` — curated model shortlist (price/quality notes) all three generation skills read from, including the live cross-platform price-check procedure
+- `reference/output-conventions.md` — where generated media goes and how every generation is recorded (dated folders + `meta.json` sidecar + append-only ledger)
+- `reference/channel-registry.md` — the list of channels (id → language, style profile, format defaults); front-end skills resolve the channel here so language is never hardcoded
+- `reference/short-video-craft.md` — the craft of short video (hook patterns, retention curve, pacing, CTA)
+- `reference/content-conventions.md` — where creative artifacts (`brief.md` / `script.md` / `storyboard.md`) save and their formats. Per-channel config + your reference assets live under `channels/<id>/`; artifacts land in `content/<date>/<channel>-<slug>/`
+
+Each generation skill's job is the same shape: figure out what's missing (format, duration, budget priority), check **both** fal and OpenRouter for real current pricing on the specific request, show 2-3 priced options with the platform noted, confirm cost, call whichever provider's generation tools match the chosen option, then save the result into a dated folder and log the cost. The skills never reimplement generation logic — the providers' own MCP servers do that part. The front-end skills sit ahead of that: research → script → storyboard → hand off to generation.
 
 **Why two providers:** the same model (Seedance especially) can price very differently between platforms depending on resolution tier and backing host — sometimes by 2x or more. One provider alone risks silently overpaying. See `reference/model-catalog.md` for the specifics.
 

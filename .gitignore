@@ -22,6 +22,24 @@ outputs/**/*.wav
 # Stale prices in git would be worse than no cache, so keep it out.
 price-cache.json
 
+# Creative front-end: track the text artifacts (briefs/scripts/storyboards +
+# sidecars) and learned style profiles, but keep the user's own source material
+# and reference assets — and any media generated under content/ — out of git.
+channels/**/examples/**
+!channels/**/examples/.gitkeep
+channels/**/references/**
+!channels/**/references/.gitkeep
+content/**/*.png
+content/**/*.jpg
+content/**/*.jpeg
+content/**/*.webp
+content/**/*.gif
+content/**/*.mp4
+content/**/*.mov
+content/**/*.webm
+content/**/*.mp3
+content/**/*.wav
+
 # OS / editor cruft
 .DS_Store
 .env
