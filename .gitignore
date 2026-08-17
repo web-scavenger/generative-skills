@@ -39,6 +39,7 @@ content/**/*.mov
 content/**/*.webm
 content/**/*.mp3
 content/**/*.wav
+content/*
 
 # OS / editor cruft
 .DS_Store

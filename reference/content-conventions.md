@@ -59,6 +59,11 @@ Keep these light and skimmable. Exact headings matter less than having the load-
 # Brief: <topic> — <channel>
 **Channel:** uk   **Language:** Ukrainian   **Date:** 2026-08-17
 
+## Details (how it works, in plain terms)
+<2–4 sentences explaining the topic well enough to aim the script — the basic
+mechanism / what's actually going on. Orientation, not a lecture: enough that
+someone could pick an angle below with confidence.>
+
 ## Angles (why anyone cares)
 - <angle>, <angle>, ...
 

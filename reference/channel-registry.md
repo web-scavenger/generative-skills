@@ -18,8 +18,8 @@ that's prevented.
 
 | id | Name | Language | Style profile | Default format | Default length | Niche / notes |
 |---|---|---|---|---|---|---|
-| `en` | (name TBD) | English (`en`) | `channels/en/style-profile.md` | 9:16 vertical | 20–40s | Explainer TikToks, English audience |
-| `uk` | (name TBD) | Ukrainian (`uk`) | `channels/uk/style-profile.md` | 9:16 vertical | 20–40s | Explainer TikToks, Ukrainian audience |
+| `uk` | (name TBD) | Ukrainian (`uk`) | `channels/uk/style-profile.md` | 9:16 vertical | 30–35s | **Source channel.** Explainer TikToks, Ukrainian audience. Authored natively (best scenario + audio). |
+| `en` | (name TBD) | English (`en`) | `channels/en/style-profile.md` | 9:16 vertical | 30–36s | **Translation-derived from `uk`.** Re-pace, don't literal-translate; rewrite the hook to feel native. |
 
 - **id** — short, stable, kebab-case. Used verbatim in artifact folder names (`content/<date>/<id>-<slug>/`)
   and in the `channel` field of every `meta.json`. Don't rename an id lightly — it's a key.
@@ -30,6 +30,21 @@ that's prevented.
   rather than inventing a voice.
 - **Default format / length** — the starting assumption for `script-writing` and `storyboard`; always
   overridable per request.
+
+### Source vs translation-derived channels
+
+`uk` is the **source channel**: scripts are authored natively in Ukrainian, where the user can bring the
+strongest scenario and record their own audio. `en` is **translation-derived** from the matching `uk`
+script — it is not authored from scratch. When producing the `en` version:
+
+- **Translate meaning, then re-pace.** A tight 30–35s Ukrainian script won't land at the same second
+  count in English (±10–20% drift from syllable density and phrasing). Budget `en` at ~30–36s and let
+  `storyboard` re-time the beats rather than forcing a word-for-word match.
+- **Rewrite the hook natively.** The first 1–2s decide everything; a literally-translated hook reads as
+  translated. Rewrite the `en` hook to the same *intent*, not the same words. The body can stay closer
+  to literal.
+
+Default new work to `uk` unless the user says otherwise.
 
 ---
 
